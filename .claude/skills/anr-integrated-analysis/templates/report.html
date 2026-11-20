@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{TITLE}}</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: "Microsoft YaHei", "PingFang SC", -apple-system, sans-serif;
+  background: #f3f5f8;
+  color: #111;
+  line-height: 1.65;
+  font-size: 14px;
+}
+
+.header {
+  background: linear-gradient(135deg, #0066ff 0%, #00b7c3 50%, #ff7f1f 100%);
+  color: #fff;
+  padding: 56px 80px 40px;
+  position: relative;
+  overflow: hidden;
+}
+.header::before {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.08) 0%, transparent 60%),
+              radial-gradient(ellipse at 70% 80%, rgba(255,255,255,0.05) 0%, transparent 50%);
+}
+.header-inner { position: relative; z-index: 1; }
+.header h1 { font-size: 32px; font-weight: 650; letter-spacing: -0.5px; line-height: 1.3; }
+.header .meta { font-size: 13px; opacity: 0.8; margin-top: 12px; letter-spacing: 0.3px; }
+.header .meta span { margin-right: 32px; }
+
+.body-layout { display: flex; min-height: 100vh; }
+
+.sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: #fff;
+  border-right: 1px solid #e8ecf2;
+  padding: 36px 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+.sidebar-label {
+  font-size: 11px; font-weight: 650; color: #aaa;
+  text-transform: uppercase; letter-spacing: 1.5px;
+  padding: 0 28px 16px;
+}
+.sidebar-nav a {
+  display: block;
+  padding: 8px 28px;
+  font-size: 13px; color: #888; text-decoration: none;
+  border-left: 3px solid transparent;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.sidebar-nav a:hover { color: #333; background: #f8f9fc; }
+.sidebar-nav a.active {
+  color: #0066ff; font-weight: 650;
+  border-left-color: #0066ff; background: #f0f5ff;
+}
+
+.main-content { flex: 1; min-width: 0; }
+
+.section {
+  padding: 56px 80px;
+  border-bottom: 1px solid #e8ecf2;
+}
+.section:last-child { border-bottom: none; }
+
+.section-title {
+  font-size: 18px; font-weight: 700; color: #111;
+  margin-bottom: 28px;
+  padding-left: 16px;
+  border-left: 4px solid #0066ff;
+}
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+.grid-2:last-child { margin-bottom: 0; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+
+.card {
+  background: #fff; border-radius: 10px; padding: 24px 28px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+.card-title { font-size: 12px; font-weight: 650; color: #999; margin-bottom: 16px; }
+
+table { width: 100%; border-collapse: collapse; }
+th {
+  text-align: left; font-size: 10px; font-weight: 650; color: #999;
+  padding: 6px 14px; border-bottom: 2px solid #eef0f4;
+}
+td {
+  padding: 7px 14px; border-bottom: 1px solid #f5f6f8; color: #555;
+  overflow-wrap: break-word; word-break: break-word;
+}
+td:first-child { color: #333; font-weight: 600; font-size: 12px; }
+tr:last-child td { border-bottom: none; }
+
+.root-cause {
+  background: linear-gradient(135deg, #fff7ed 0%, #fff 100%);
+  border-left: 4px solid #ff7f1f;
+  padding: 32px 36px;
+  border-radius: 0 12px 12px 0;
+  font-size: 16px; line-height: 1.9;
+}
+.root-cause .eyebrow {
+  font-size: 10px; font-weight: 650; text-transform: uppercase;
+  letter-spacing: 2px; color: #ff7f1f; margin-bottom: 10px;
+}
+.root-cause strong { color: #0066ff; }
+
+.causal-chain {
+  font-family: "SF Mono", "Consolas", "Monaco", monospace;
+  font-size: 13px; line-height: 2; color: #444; padding: 12px 0;
+}
+.causal-chain .stage-label {
+  display: inline-block; width: 130px;
+  font-weight: 700; font-size: 11px; color: #0066ff;
+}
+.causal-chain .stage-time { color: #999; font-size: 11px; margin-bottom: 4px; display: inline-block; }
+.causal-chain .causal-chain-desc {
+  margin-left: 130px; font-size: 12px; line-height: 1.8; color: #555;
+  margin-bottom: 2px;
+}
+.causal-chain .arrow-line {
+  color: #ccc; margin-left: 130px; display: block; font-size: 11px;
+  margin-bottom: 8px;
+}
+
+.code-block {
+  background: #1e1e2e; color: #cdd6f4;
+  font-family: "SF Mono", "Consolas", "Monaco", monospace;
+  font-size: 11.5px; line-height: 1.55;
+  padding: 20px 24px; border-radius: 8px; overflow-x: auto;
+  margin: 0; white-space: pre; tab-size: 2;
+}
+.code-block .highlight { color: #f9e2af; }
+.code-block .comment { color: #6c7086; }
+.code-block .red { color: #f38ba8; font-weight: 700; }
+.code-block .green { color: #a6e3a1; }
+.code-source {
+  font-size: 10px; color: #999; font-weight: 650; margin-bottom: 6px;
+}
+
+.key-point {
+  font-size: 13px; color: #0066ff; font-weight: 600;
+  padding: 12px 18px; background: #f0f5ff;
+  border-radius: 6px; margin-top: 8px;
+}
+
+.badge {
+  display: inline-block; padding: 2px 10px; border-radius: 8px;
+  font-size: 10px; font-weight: 700; white-space: nowrap;
+}
+.badge-p0 { background: #fee2e2; color: #dc2626; }
+.badge-p1 { background: #fef3c7; color: #d97706; }
+.badge-ok { background: #d1fae5; color: #059669; }
+
+.severity {
+  font-size: 11px; font-weight: 650; color: #dc2626;
+  margin-left: 6px;
+}
+.severity.warn { color: #d97706; }
+
+.info-note {
+  background: #f8f9fc; border-left: 3px solid #0066ff;
+  padding: 12px 18px; font-size: 12px; color: #666;
+  border-radius: 0 6px 6px 0; margin-top: 16px;
+}
+
+.stage-label {
+  font-size: 11px; font-weight: 650;
+  margin-bottom: 4px;
+}
+.stage-label.blue { color: #0066ff; }
+.stage-label.red { color: #dc2626; }
+
+.appendix { font-size: 12px; color: #888; }
+.appendix table td { border-bottom: none; padding: 4px 14px; }
+.appendix td:first-child { font-family: "SF Mono", "Consolas", monospace; font-size: 11px; color: #777; }
+
+@media (max-width: 1024px) { .sidebar { display: none; } }
+@media (max-width: 768px) {
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .section { padding: 32px 24px; }
+  .header { padding: 40px 24px 32px; }
+  .header h1 { font-size: 24px; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <h1>{{PROCESS_NAME}}<br>{{SYMPTOM_TYPE}} 分析报告</h1>
+    <div class="meta">
+      <span>Device: {{DEVICE_MODEL}}</span>
+      <span>OS: {{OS_VERSION}} / Android {{ANDROID_VERSION}}</span>
+      <span>生成时间: {{GENERATION_TIME}}</span>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;position:relative;z-index:1">
+      <span style="display:inline-block;padding:3px 12px;border-radius:16px;font-size:11px;font-weight:600;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.25)">ANR</span>
+      <span style="display:inline-block;padding:3px 12px;border-radius:16px;font-size:11px;font-weight:600;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.25)">{{ANR_TYPE_LABEL}}</span>
+      <span style="display:inline-block;padding:3px 12px;border-radius:16px;font-size:11px;font-weight:600;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.25)">{{PACKAGE_NAME}}</span>
+      <span style="display:inline-block;padding:3px 12px;border-radius:16px;font-size:11px;font-weight:600;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.25)">{{THERMAL_STATUS}}</span>
+      <span style="display:inline-block;padding:3px 12px;border-radius:16px;font-size:11px;font-weight:600;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.25)">{{LOAD_STATUS}}</span>
+      <span style="display:inline-block;padding:3px 12px;border-radius:16px;font-size:11px;font-weight:600;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.25)">{{BINDER_STATUS}}</span>
+    </div>
+  </div>
+</div>
+
+<div class="body-layout">
+
+<nav class="sidebar">
+  <div class="sidebar-label">目录</div>
+  <div class="sidebar-nav">
+    <a href="#info">基础信息</a>
+    <a href="#device-status">设备全局状态</a>
+    <a href="#root-cause">根因总结</a>
+    <a href="#timeline">时间线</a>
+    <a href="#evidence">证据</a>
+    <a href="#analysis">根因分析</a>
+    <a href="#recommendations">修复建议</a>
+    <a href="#checklist">Convergence Checklist</a>
+    <a href="#appendix">附录</a>
+  </div>
+</nav>
+
+<div class="main-content">
+
+<!-- ====== 基础信息 ====== -->
+<div class="section" id="info">
+  <div class="section-title">基础信息</div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">系统信息</div>
+      <table>
+        <tr><td>设备型号</td><td>{{DEVICE_MODEL}}</td></tr>
+        <tr><td>RAM</td><td>{{RAM}}</td></tr>
+        <tr><td>系统版本</td><td>{{OS_VERSION}} / Android {{ANDROID_VERSION}}</td></tr>
+        <tr><td>构建号</td><td>{{BUILD_NUMBER}}</td></tr>
+        <tr><td>抓取时间</td><td>{{CAPTURE_TIME}}</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">ANR 概览</div>
+      <table>
+        <tr><td>ANR 类型</td><td>{{ANR_TYPE}} <span class="severity {{ANR_SEVERITY_CLASS}}">{{ANR_SEVERITY}}</span></td></tr>
+        <tr><td>ANR Reason</td><td>{{ANR_REASON}}</td></tr>
+        <tr><td>触发进程</td><td>{{ANR_PROCESS}} (PID {{ANR_PID}})</td></tr>
+        <tr><td>ANR 时间</td><td>{{ANR_TIME}}</td></tr>
+        <tr><td>超时时长</td><td>{{WAITED_MS}}ms</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-title">线程状态</div>
+      <table>
+        <tr><td>主线程状态</td><td>{{MAIN_THREAD_STATE}} <span class="severity {{MAIN_THREAD_SEVERITY}}">{{MAIN_THREAD_NATIVE_STATE}}</span></td></tr>
+        <tr><td>阻塞位置</td><td>{{BLOCKING_POINT}}</td></tr>
+        <tr><td>总线程数</td><td>{{TOTAL_THREADS}}</td></tr>
+        <tr><td>Dump Latency</td><td>{{DUMP_LATENCY}} ms</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">进程资源</div>
+      <table>
+        <tr><td>RSS</td><td>{{RSS_KB}} KB (HWM {{RSS_HWM_KB}})</td></tr>
+        <tr><td>Swap</td><td>{{SWAP_KB}} KB</td></tr>
+        <tr><td>ANR 数量</td><td>{{ANR_COUNT}}</td></tr>
+        <tr><td>前台/后台</td><td>{{FG_BG}}</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">PSI 压力</div>
+      <table>
+        <tr><td>CPU (10/60/300)</td><td>{{PSI_CPU}}</td></tr>
+        <tr><td>Memory</td><td>{{PSI_MEM}}</td></tr>
+        <tr><td>IO</td><td>{{PSI_IO}}</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:24px">
+    <div class="card-title">系统负载背景</div>
+    <table>
+      {{SYSTEM_LOAD_TABLE}}
+    </table>
+    <div class="info-note">{{SYSTEM_LOAD_NOTE}}</div>
+  </div>
+</div>
+
+<!-- ====== 设备全局状态 ====== -->
+<div class="section" id="device-status">
+  <div class="section-title">设备全局状态</div>
+  <div class="card">
+    <table>
+      <tr><th>检查项</th><th>状态</th><th>详情</th></tr>
+      {{DEVICE_CHECK_ROWS}}
+    </table>
+  </div>
+</div>
+
+<!-- ====== 根因总结 ====== -->
+<div class="section" id="root-cause">
+  <div class="section-title">根因总结</div>
+  <div class="root-cause">
+    <div class="eyebrow">Root Cause</div>
+    {{ROOT_CAUSE_SUMMARY}}
+  </div>
+</div>
+
+<!-- ====== 时间线 ====== -->
+<div class="section" id="timeline">
+  <div class="section-title">事件时间线</div>
+  <div class="card">
+    <table>
+      <tr><th>时间</th><th>事件</th><th>关键数据</th></tr>
+      {{TIMELINE_ROWS}}
+    </table>
+  </div>
+</div>
+
+<!-- ====== 证据 ====== -->
+<div class="section" id="evidence">
+  <div class="section-title">证据</div>
+  {{EVIDENCE_ITEMS}}
+</div>
+
+<!-- ====== 根因分析 ====== -->
+<div class="section" id="analysis">
+  <div class="section-title">根因分析</div>
+
+  <div class="card" style="margin-bottom:24px">
+    <div class="card-title">因果链</div>
+    <div class="causal-chain">{{CAUSAL_CHAIN}}</div>
+  </div>
+
+  <div class="card" style="margin-bottom:24px">
+    <div class="card-title">假设博弈</div>
+    <table>
+      <tr><th>假设</th><th>支持度</th><th>证据</th></tr>
+      {{HYPOTHESIS_TABLE}}
+    </table>
+  </div>
+
+  <div class="card" style="margin-bottom:24px">
+    <div class="card-title">排除的竞争机制</div>
+    <table>
+      <tr><th>竞争机制</th><th>排除原因</th></tr>
+      {{EXCLUDED_MECHANISMS}}
+    </table>
+  </div>
+
+  {{EXTRA_ANALYSIS_CARDS}}
+</div>
+
+<!-- ====== Convergence Checklist ====== -->
+<div class="section" id="checklist">
+  <div class="section-title">Convergence Checklist</div>
+  <div class="card">
+    <table>
+      <tr><th>检查项</th><th>状态</th></tr>
+      {{CHECKLIST_ROWS}}
+    </table>
+  </div>
+</div>
+
+<!-- ====== 修复建议 ====== -->
+<div class="section" id="recommendations">
+  <div class="section-title">修复建议</div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">App 侧</div>
+      <table>
+        <tr><th>#</th><th>建议</th><th></th></tr>
+        {{APP_RECOMMENDATIONS}}
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">系统侧</div>
+      <table>
+        <tr><th>#</th><th>建议</th><th></th></tr>
+        {{SYSTEM_RECOMMENDATIONS}}
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 附录 ====== -->
+<div class="section" id="appendix">
+  <div class="section-title">附录</div>
+
+  <div class="card appendix" style="margin-bottom:20px">
+    <div class="card-title">关键文件</div>
+    <table>
+      {{APPENDIX_FILES}}
+    </table>
+  </div>
+
+  {{EXTRA_APPENDIX_CARDS}}
+</div>
+
+</div><!-- /main-content -->
+</div><!-- /body-layout -->
+
+<script>
+(function() {
+  var sections = document.querySelectorAll('.section[id]');
+  var links = document.querySelectorAll('.sidebar-nav a');
+  if (!sections.length || !links.length) return;
+
+  function update() {
+    var scrollY = window.scrollY;
+    var current = '';
+    sections.forEach(function(s) {
+      var top = s.offsetTop - 100;
+      if (scrollY >= top) current = s.getAttribute('id');
+    });
+    links.forEach(function(a) {
+      var href = a.getAttribute('href').replace('#', '');
+      a.classList.toggle('active', href === current);
+    });
+  }
+
+  window.addEventListener('scroll', update, {passive: true});
+  update();
+
+  links.forEach(function(a) {
+    a.addEventListener('click', function(e) {
+      e.preventDefault();
+      var id = this.getAttribute('href').replace('#', '');
+      var el = document.getElementById(id);
+      if (el) el.scrollIntoView({behavior: 'smooth', block: 'start'});
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

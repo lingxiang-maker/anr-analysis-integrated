@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Claude local settings (machine-specific paths/permissions)
+.claude/settings.local.json
+
+# Analysis inputs / outputs
+logs/
+extracted/
+bugreport_extracted/
+tmp_extract/
+*.zip
+
+# OS
+.DS_Store
+Thumbs.db
